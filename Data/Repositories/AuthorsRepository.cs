@@ -1,4 +1,4 @@
-﻿using LibraryAPI.Models;
+﻿using LibraryAPI.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAPI.Data.Repositories

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using LibraryAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryAPI.Data;
@@ -236,7 +235,7 @@ public partial class LibraryDbContext : DbContext
             entity.ToTable("roles");
 
             entity.Property(e => e.Id).HasColumnType("int(11)");
-            entity.Property(e => e.Name).HasColumnType("int(11)");
+            entity.Property(e => e.Name).HasMaxLength(20);
         });
 
         modelBuilder.Entity<User>(entity =>
@@ -247,18 +246,12 @@ public partial class LibraryDbContext : DbContext
 
             entity.HasIndex(e => e.RoleId, "RoleId");
 
-            entity.Property(e => e.Id)
-                .ValueGeneratedOnAdd()
-                .HasColumnType("int(11)");
+            entity.Property(e => e.Id).HasColumnType("int(11)");
             entity.Property(e => e.Login).HasMaxLength(20);
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(60)
                 .IsFixedLength();
             entity.Property(e => e.RoleId).HasColumnType("int(11)");
-
-            entity.HasOne(d => d.IdNavigation).WithOne(p => p.UserNavigation)
-                .HasForeignKey<User>(d => d.Id)
-                .HasConstraintName("users_ibfk_2");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)

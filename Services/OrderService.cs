@@ -1,5 +1,5 @@
-﻿using LibraryAPI.Data.Repositories;
-using LibraryAPI.Models;
+﻿using LibraryAPI.Data;
+using LibraryAPI.Data.Repositories;
 using System.Web.Http;
 
 namespace LibraryAPI.Services

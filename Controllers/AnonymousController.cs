@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LibraryAPI.Services;
-using LibraryAPI.Models;
 using System.Web.Http;
+using LibraryAPI.Data;
+using LibraryAPI.Data.DTOs;
 
 namespace LibraryAPI.Controllers
 {
@@ -11,18 +12,18 @@ namespace LibraryAPI.Controllers
     {
         private readonly UserManagementService _userManagementService;
 
-        public AnonymousController(UserManagementService registerService)
+        public AnonymousController(UserManagementService userManagementService)
         {
-            _userManagementService = registerService;
+            _userManagementService = userManagementService;
         }
 
         // POST api/<AnonymousController>
-        [Microsoft.AspNetCore.Mvc.HttpPost]
-        public async Task<ActionResult<Customer>> SignUpAsCustomer(string login, string password, string[] customerData)
+        [Microsoft.AspNetCore.Mvc.HttpPost("register")]
+        public async Task<ActionResult<Customer>> SignUpAsCustomer([Microsoft.AspNetCore.Mvc.FromBody] RegisterDTO userdata)
         {
             try
             {
-                return await _userManagementService.RegisterUserCustomer(login, password, customerData);
+                return await _userManagementService.RegisterUserCustomer(userdata.Login, userdata.Password, userdata.CustomerData);
             }
             catch (HttpResponseException ex)
             {

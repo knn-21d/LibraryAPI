@@ -1,5 +1,4 @@
 ﻿using LibraryAPI.Data;
-using LibraryAPI.Models;
 using LibraryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;

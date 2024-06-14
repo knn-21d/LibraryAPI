@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LibraryAPI.Models;
+namespace LibraryAPI.Data;
 
 public partial class Copy
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     public string Isbn { get; set; } = null!;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LibraryAPI.Models;
+namespace LibraryAPI.Data;
 
 public partial class BookCategory
 {

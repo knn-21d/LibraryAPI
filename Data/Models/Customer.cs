@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LibraryAPI.Models;
+namespace LibraryAPI.Data;
 
 public partial class Customer
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
     public string FirstName { get; set; } = null!;
@@ -26,6 +24,4 @@ public partial class Customer
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual User User { get; set; } = null!;
-
-    public virtual User? UserNavigation { get; set; }
 }
