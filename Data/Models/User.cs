@@ -13,7 +13,7 @@ public partial class User
 
     public int RoleId { get; set; }
 
-    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+    public virtual Customer? Customer { get; set; }
 
     public virtual Role Role { get; set; } = null!;
 }

@@ -162,7 +162,7 @@ public partial class LibraryDbContext : DbContext
 
             entity.ToTable("customers");
 
-            entity.HasIndex(e => e.UserId, "UserId");
+            entity.HasIndex(e => e.UserId, "UserId").IsUnique();
 
             entity.Property(e => e.Id).HasColumnType("int(11)");
             entity.Property(e => e.Address).HasMaxLength(50);
@@ -177,8 +177,8 @@ public partial class LibraryDbContext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.UserId).HasColumnType("int(11)");
 
-            entity.HasOne(d => d.User).WithMany(p => p.Customers)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(d => d.User).WithOne(p => p.Customer)
+                .HasForeignKey<Customer>(d => d.UserId)
                 .HasConstraintName("customers_ibfk_1");
         });
 
@@ -244,7 +244,7 @@ public partial class LibraryDbContext : DbContext
 
             entity.ToTable("users");
 
-            entity.HasIndex(e => e.RoleId, "RoleId");
+            entity.HasIndex(e => e.RoleId, "users_ibfk_1");
 
             entity.Property(e => e.Id).HasColumnType("int(11)");
             entity.Property(e => e.Login).HasMaxLength(20);
@@ -255,6 +255,7 @@ public partial class LibraryDbContext : DbContext
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("users_ibfk_1");
         });
 

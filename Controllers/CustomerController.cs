@@ -21,7 +21,7 @@ namespace LibraryAPI.Controllers
             _orderService = orderService;
         }
 
-        [Microsoft.AspNetCore.Mvc.HttpGet("{id}")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("order/{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
             try
@@ -34,7 +34,7 @@ namespace LibraryAPI.Controllers
             }
         }
 
-        [Microsoft.AspNetCore.Mvc.HttpGet("customers/getOrdersByCustomer")]
+        [Microsoft.AspNetCore.Mvc.HttpGet("orders")]
         public async Task<ActionResult<IEnumerable<Order>>> GetAllOrdersByCustomer()
         {
             try
@@ -48,8 +48,8 @@ namespace LibraryAPI.Controllers
         }
 
         // POST api/<CustomersController>
-        [Microsoft.AspNetCore.Mvc.HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder(string isbn)
+        [Microsoft.AspNetCore.Mvc.HttpPost("new-order")]
+        public async Task<ActionResult<Order>> CreateOrder([Microsoft.AspNetCore.Mvc.FromBody] string isbn)
         {
             try
             {

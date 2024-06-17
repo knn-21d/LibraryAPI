@@ -3,7 +3,10 @@ using LibraryAPI.Data;
 using LibraryAPI.Data.Repositories;
 using LibraryAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using System.Configuration;
+using System.Text.Json;
+using Microsoft.Extensions.Options;
 
 namespace LibraryAPI
 {
@@ -14,11 +17,11 @@ namespace LibraryAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddDbContext<LibraryDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Singleton);
+            builder.Services.AddDbContext<LibraryDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")!), ServiceLifetime.Singleton);
             builder.Services.AddSingleton<CopiesRepository>();
             builder.Services.AddSingleton<BooksRepository>();
             builder.Services.AddSingleton<CustomersRepository>();

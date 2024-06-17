@@ -1,6 +1,6 @@
 {
-  "Login": "admin",
-  "Password": "admin",
+  "Login": "login",
+  "Password": "password",
   "CustomerData": [
     "Иван",
     "Иванович",
