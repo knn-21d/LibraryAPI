@@ -16,6 +16,11 @@ namespace LibraryAPI.Data.Repositories
             return await _context.Users.OrderBy(x => x.Id).ToListAsync();
         }
 
+        public async Task<User?> GetuserByLogin(string login)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Login == login);
+        }
+
         public async Task<User?> GetUser(int id)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == id);

@@ -1,5 +1,8 @@
 ﻿using LibraryAPI.Data;
 using LibraryAPI.Data.Repositories;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Web.Helpers;
 using System.Web.Http;
 
@@ -9,11 +12,14 @@ namespace LibraryAPI.Services
     {
         private readonly UsersRepository _usersRepository;
         private readonly CustomersRepository _customersRepository;
+        private readonly IConfiguration _config;
 
-        public UserManagementService(UsersRepository usersRepository, CustomersRepository customersRepository)
+
+        public UserManagementService(UsersRepository usersRepository, CustomersRepository customersRepository, IConfiguration config)
         {
             _customersRepository = customersRepository;
             _usersRepository = usersRepository;
+            _config = config;
         }
 
         public async Task<User> RegisterUser(string login, string password, int roleId)
@@ -55,6 +61,32 @@ namespace LibraryAPI.Services
                 Address = customerData[5],
                 UserId = user.Id
             });
+        }
+
+        public async Task<string> LoginUser(string login, string password)
+        {
+            User? user = await _usersRepository.GetuserByLogin(login);
+            if (user is null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+            var isCorrectPassword = Crypto.VerifyHashedPassword(user.PasswordHash, password);
+            if (!isCorrectPassword)
+            {
+                throw new UnauthorizedAccessException();
+            }
+                var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+                var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+                var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
+                  _config["Jwt:Issuer"],
+                  null,
+                  expires: DateTime.Now.AddMinutes(120),
+                  signingCredentials: credentials);
+
+                var token = new JwtSecurityTokenHandler().WriteToken(Sectoken);
+
+                return token;
         }
 
         public async Task<IEnumerable<Customer>> GetAllCustomers()
