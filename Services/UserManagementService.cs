@@ -2,6 +2,7 @@
 using LibraryAPI.Data.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Web.Helpers;
 using System.Web.Http;
@@ -78,9 +79,15 @@ namespace LibraryAPI.Services
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-                var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
+            var claims = new List<Claim>
+            {
+                new Claim("userId", user.Id.ToString()),
+                new Claim("roleId", user.RoleId.ToString()),
+            };
+
+            var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
                   _config["Jwt:Issuer"],
-                  null,
+                  claims,
                   expires: DateTime.Now.AddMinutes(120),
                   signingCredentials: credentials);
 

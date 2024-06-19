@@ -1,23 +1,23 @@
 ﻿using LibraryAPI.Data;
 using LibraryAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using System.Web.Http;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 
 namespace LibraryAPI.Controllers
 {
     [Microsoft.AspNetCore.Mvc.Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly User _user;
-        private readonly Customer _customer;
+        private readonly User? _user = null;
+        private readonly Customer? _customer = null;
         private readonly OrderService _orderService;
 
-        public CustomerController(User user, Customer customer, OrderService orderService)
+        public CustomerController(OrderService orderService)
         {
-            _user = user;
-            _customer = customer;
             _orderService = orderService;
         }
 
@@ -35,8 +35,10 @@ namespace LibraryAPI.Controllers
         }
 
         [Microsoft.AspNetCore.Mvc.HttpGet("orders")]
+        [Authorize()]
         public async Task<ActionResult<IEnumerable<Order>>> GetAllOrdersByCustomer()
         {
+            var test = User;
             try
             {
                 return Ok(await _orderService.GetAllOrdersByCustomer(_customer.Id, _user));
