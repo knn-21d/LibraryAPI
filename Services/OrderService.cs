@@ -52,18 +52,20 @@ namespace LibraryAPI.Services
             }
         }
 
-        public async Task<IEnumerable<Order>> GetAllOrdersByCustomer(int customerId, User requestSender)
+        public async Task<IEnumerable<Order>> GetAllOrdersByCustomer(User requestSender, int? customerId)
         {
-            if (await _customersRepository.GetCustomer(customerId) is null)
+            Customer? customer = customerId is not null
+                ? await _customersRepository.GetCustomer((int)customerId)
+                : await _customersRepository.GetCustomerByUserId(requestSender.Id);
+            if (customer is null)
             {
                 throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
             }
 
-            Customer? customer = await _customersRepository.GetCustomerByUserId(requestSender.Id);
 
-            if (Enumerable.Range(2, 3).Contains(requestSender.RoleId) || customerId == customer?.Id)
+            if (Enumerable.Range(2, 3).Contains(requestSender.RoleId) || customerId is null)
             {
-                return await _ordersRepository.GetAllOrdersByCustomer(customerId);
+                return await _ordersRepository.GetAllOrdersByCustomer(customer.Id);
             }
             else
             {

@@ -22,6 +22,12 @@ namespace LibraryAPI.Data.Repositories
             return await _context.Authors.FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public Author? GetAuthorByBook(string isbn)
+        {
+            var bookAuthor = _context.AuthorBooks.FirstOrDefault(authorBook => authorBook.Isbn == isbn);
+            return bookAuthor is not null ? _context.Authors.FirstOrDefault(author => author.Id == bookAuthor.AuthorId) : null;
+        }
+
         public async Task<Author> AddAuthor(Author author)
         {
             await _context.Authors.AddAsync(author);

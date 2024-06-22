@@ -82,6 +82,9 @@ namespace LibraryAPI
             builder.Services.AddSingleton<UserManagementService>();
             builder.Services.AddSingleton<StorageManagementService>();
             builder.Services.AddSingleton<OrderService>();
+            builder.Services.AddSingleton<PublishersRepository>();
+            builder.Services.AddSingleton<BooksService>();
+            builder.Services.AddSingleton<AuthorsRepository>();
 
             var app = builder.Build();
 

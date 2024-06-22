@@ -1,8 +1,12 @@
 ﻿using LibraryAPI.Data;
+using LibraryAPI.Data.DTOs;
 using LibraryAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
+using System.Text.Json;
 using System.Web.Http;
+using System.Web.Http.Results;
 using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 
 namespace LibraryAPI.Controllers
@@ -12,8 +16,6 @@ namespace LibraryAPI.Controllers
     [Authorize]
     public class CustomerController : ControllerBase
     {
-        private readonly User? _user = null;
-        private readonly Customer? _customer = null;
         private readonly OrderService _orderService;
 
         public CustomerController(OrderService orderService)
@@ -22,45 +24,29 @@ namespace LibraryAPI.Controllers
         }
 
         [Microsoft.AspNetCore.Mvc.HttpGet("order/{id}")]
+        [Authorize()]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            try
-            {
-                return Ok(await _orderService.GetOrder(id, _user));
-            }
-            catch (HttpResponseException ex)
-            {
-                return StatusCode((int)ex.Response.StatusCode);
-            }
+            var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")!.Value!);
+            return Ok(await _orderService.GetOrder(id, user));
         }
 
         [Microsoft.AspNetCore.Mvc.HttpGet("orders")]
         [Authorize()]
         public async Task<ActionResult<IEnumerable<Order>>> GetAllOrdersByCustomer()
         {
-            var test = User;
-            try
-            {
-                return Ok(await _orderService.GetAllOrdersByCustomer(_customer.Id, _user));
-            }
-            catch (HttpResponseException ex)
-            {
-                return StatusCode((int)ex.Response.StatusCode);
-            }
+            var user = User;
+            var userObj = JsonSerializer.Deserialize<User>(user.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            return Ok(await _orderService.GetAllOrdersByCustomer(userObj, null));
         }
 
         // POST api/<CustomersController>
         [Microsoft.AspNetCore.Mvc.HttpPost("new-order")]
-        public async Task<ActionResult<Order>> CreateOrder([Microsoft.AspNetCore.Mvc.FromBody] string isbn)
+        [Authorize()]
+        public async Task<ActionResult<Order>> CreateOrder([Microsoft.AspNetCore.Mvc.FromBody] NewOrderDto isbn)
         {
-            try
-            {
-                return Ok(await _orderService.CreateOrder(_customer.Id, isbn));
-            }
-            catch (HttpResponseException ex)
-            {
-                return StatusCode((int)ex.Response.StatusCode);
-            }
+            var customer = JsonSerializer.Deserialize<Customer>(User.Claims.FirstOrDefault(claim => claim?.Type == "customer")!.Value!);
+            return Ok(await _orderService.CreateOrder(customer!.Id, isbn.isbn));
         }
     }
 }

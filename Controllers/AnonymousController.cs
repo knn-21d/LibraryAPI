@@ -14,11 +14,12 @@ namespace LibraryAPI.Controllers
     public class AnonymousController : ControllerBase
     {
         private readonly UserManagementService _userManagementService;
+        private readonly BooksService _booksService;
 
-
-        public AnonymousController(UserManagementService userManagementService)
+        public AnonymousController(UserManagementService userManagementService, BooksService booksService)
         {
             _userManagementService = userManagementService;
+            _booksService = booksService;
         }
 
         // POST api/<AnonymousController>
@@ -39,6 +40,12 @@ namespace LibraryAPI.Controllers
         public async Task<ActionResult<string>> Login([Microsoft.AspNetCore.Mvc.FromBody] LoginDTO loginRequest)
         {
             return await _userManagementService.LoginUser(loginRequest.Login, loginRequest.Password);
+        }
+
+        [Microsoft.AspNetCore.Mvc.HttpGet("searchBooks")]
+        public async Task<ActionResult<List<Book>>> SearchBooks([Microsoft.AspNetCore.Mvc.FromQuery] BooksSearchDto booksSearchRequest)
+        {
+            return await _booksService.SearchBooks(booksSearchRequest);
         }
     }
 }

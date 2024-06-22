@@ -1,9 +1,12 @@
 ﻿using LibraryAPI.Data;
+using LibraryAPI.Data.DTOs;
 using LibraryAPI.Data.Repositories;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Web.Helpers;
 using System.Web.Http;
 
@@ -79,10 +82,21 @@ namespace LibraryAPI.Services
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var customer = await this._customersRepository.GetCustomerByUserId(user.Id);
+
             var claims = new List<Claim>
             {
-                new Claim("userId", user.Id.ToString()),
-                new Claim("roleId", user.RoleId.ToString()),
+                new Claim("user", JsonSerializer.Serialize(new UserJwt{Id = user.Id, Login = user.Login, PasswordHash = user.PasswordHash, Role = user.Role, RoleId = user.RoleId}, new JsonSerializerOptions{ReferenceHandler = ReferenceHandler.Preserve})),
+                new Claim("customer", JsonSerializer.Serialize(new CustomerJwt{
+                    Address = customer?.Address, 
+                    AltPhone = customer?.AltPhone, 
+                    FirstName = customer?.FirstName, 
+                    Id = customer!.Id, 
+                    LastName = customer?.LastName, 
+                    Patronymic = customer?.Patronymic, 
+                    Phone = customer?.Phone, 
+                    UserId = customer!.UserId
+                }, new JsonSerializerOptions{ReferenceHandler = ReferenceHandler.Preserve}))
             };
 
             var Sectoken = new JwtSecurityToken(_config["Jwt:Issuer"],
