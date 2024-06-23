@@ -14,7 +14,11 @@
 
         public decimal Price { get; set; }
 
+        public int[]? AuthorId { get; set; } = null;
+
         public virtual PublisherDto? Publisher { get; set; } = null!;
+
+        public virtual AuthorDto[]? Author { get; set; } = null;
     }
 
 }

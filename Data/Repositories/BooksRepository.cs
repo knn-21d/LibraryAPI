@@ -21,7 +21,7 @@ namespace LibraryAPI.Data.Repositories
 
         public async Task<List<Book>> SearchBooks(BooksSearchDto query)
         {
-            return (await _context.Books.ToListAsync()).Where(book =>
+            return (await _context.Books.Include(b => b.Publisher).Include(b => b.AuthorBooks).ToListAsync()).Where(book =>
             {
                 bool isMeetsCondition = true;
                 isMeetsCondition = query.Name is not null ? book.Title.ToLower().Contains(query.Name.ToLower()) : true;
@@ -31,10 +31,9 @@ namespace LibraryAPI.Data.Repositories
                 isMeetsCondition = query.Country is not null ? book.Publisher.Country.ToLower().Contains(query.Country.ToLower()) : true;
                 isMeetsCondition = query.Year is not null ? book.Year == query.Year : true;
                 isMeetsCondition = query.PriceFrom is not null ? book.Price >= query.PriceFrom : true;
-                isMeetsCondition = query.PriceTo is not null ? query.PriceTo <= query.PriceTo : true;
-                var auuthor = _authorsRepository.GetAuthorByBook(book.Isbn);
-                isMeetsCondition = query.Author is not null && auuthor is not null 
-                    ? (auuthor?.FirstName.ToLower() + " " + auuthor?.LastName.ToLower() + " " + auuthor?.Patronymic?.ToLower()).Contains(query.Author.ToLower()) 
+                isMeetsCondition = query.PriceTo is not null ? book.Price <= query.PriceTo : true;
+                isMeetsCondition = query.Author is not null && book.AuthorBooks.Count > 0
+                    ? book.AuthorBooks.Any(auuthor => (auuthor.Author?.FirstName.ToLower() + " " + auuthor.Author?.LastName.ToLower() + " " + auuthor.Author?.Patronymic?.ToLower()).Contains(query.Author.ToLower())) 
                     : true;
                 return isMeetsCondition;
             }).ToList();

@@ -63,6 +63,13 @@ namespace LibraryAPI.Data.Repositories
             return author;
         }
 
+        public async Task<AuthorBook> AddAuthorBook(AuthorBook authorBook)
+        {
+            await _context.AuthorBooks.AddAsync(authorBook);
+            await _context.SaveChangesAsync();
+            return authorBook;
+        }
+
         internal async Task<Author?> DeleteAuthor(int id)
         {
             await _context.Authors.Where(x => x.Id == id).ExecuteDeleteAsync();

@@ -12,4 +12,6 @@ public partial class Author
     public string? Patronymic { get; set; }
 
     public string LastName { get; set; } = null!;
+
+    public virtual ICollection<AuthorBook> AuthorBooks { get; set; } = new List<AuthorBook>();
 }

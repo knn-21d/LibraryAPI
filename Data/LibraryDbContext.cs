@@ -55,13 +55,15 @@ public partial class LibraryDbContext : DbContext
             entity.Property(e => e.Patronymic)
                 .HasMaxLength(20)
                 .HasDefaultValueSql("'NULL'");
+            entity.HasMany<AuthorBook>(d => d.AuthorBooks).WithOne(p => p.Author).HasForeignKey(d => d.AuthorId);
         });
 
         modelBuilder.Entity<AuthorBook>(entity =>
         {
             entity
-                .HasNoKey()
-                .ToTable("author_book");
+                .HasKey(it => new { it.AuthorId, it.Isbn });
+
+            entity.ToTable("author_book");
 
             entity.HasIndex(e => e.AuthorId, "AuthorId");
 
@@ -97,6 +99,7 @@ public partial class LibraryDbContext : DbContext
             entity.Property(e => e.PublisherId).HasColumnType("int(11)");
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.Year).HasColumnType("year(4)");
+            entity.HasMany<AuthorBook>(d => d.AuthorBooks).WithOne(p => p.IsbnNavigation).HasForeignKey(d => d.Isbn).HasConstraintName("author_book_ibfk_2"); ;
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Books)
                 .HasForeignKey(d => d.PublisherId)

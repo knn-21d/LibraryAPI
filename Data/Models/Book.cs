@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryAPI.Data;
 
@@ -19,5 +20,6 @@ public partial class Book
 
     public virtual ICollection<Copy> Copies { get; set; } = new List<Copy>();
 
+    public virtual ICollection<AuthorBook> AuthorBooks { get; set; } = new List<AuthorBook>();
     public virtual Publisher Publisher { get; set; } = null!;
 }
