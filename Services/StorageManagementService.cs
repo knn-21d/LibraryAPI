@@ -62,15 +62,12 @@ namespace LibraryAPI.Services
             var authors = book.Author?.Length > 0
                 ? book.Author.Select(
                     async (b) => await _authorsRepository.AddAuthor(new Author { FirstName = b.FirstName, LastName = b.LastName, Patronymic = b.Patronymic })
-                ) 
+                ) .Select(it => it.Result)
                 : null;
             var authorsIds = (book.AuthorId is not null ? book.AuthorId.ToList()! : new List<int> { })
                 .Concat(authors is not null ? authors.Select(a => a.Id).ToList() : new List<int> { });
-            var authorBooks = authorsIds
-                .Select(async (id) => await _authorsRepository.AddAuthorBook(new AuthorBook { AuthorId = id, Isbn = book.Isbn }))
-                .Select(it => it.Result).ToList();
 
-            var newBook = new Book {
+            var newBook = await _booksRepository.AddBook(new Book {
                 Isbn = book.Isbn,
                 Pages = book.Pages,
                 Price = book.Price,
@@ -78,10 +75,14 @@ namespace LibraryAPI.Services
                 Year = book.Year, 
                 Title = book.Title,
                 Publisher = publisher is not null ? publisher : null,
-                AuthorBooks = authorBooks is not null ? authorBooks : new List<AuthorBook> { },
-            };
+                // AuthorBooks = authorBooks is not null ? authorBooks : new List<AuthorBook> { },
+            });
 
-            return null;
+            var authorBooks = authorsIds
+                .Select(async (id) => await _authorsRepository.AddAuthorBook(new AuthorBook { AuthorId = id, Isbn = newBook.Isbn }))
+                .Select(it => it.Result).ToList();
+
+            return newBook;
         }
     }
 }

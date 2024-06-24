@@ -10,7 +10,7 @@ namespace LibraryAPI.Controllers
 {
     [Microsoft.AspNetCore.Mvc.Route("/api/[controller]")]
     [ApiController]
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Microsoft.AspNetCore.Authorization.Authorize()]
     public class LibrarianController : Controller
     {
         private readonly User? _user = null;

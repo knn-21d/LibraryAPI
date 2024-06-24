@@ -60,25 +60,25 @@ public partial class LibraryDbContext : DbContext
 
         modelBuilder.Entity<AuthorBook>(entity =>
         {
+            entity.ToTable("author_book");
+
             entity
                 .HasKey(it => new { it.AuthorId, it.Isbn });
-
-            entity.ToTable("author_book");
 
             entity.HasIndex(e => e.AuthorId, "AuthorId");
 
             entity.HasIndex(e => e.Isbn, "ISBN");
 
-            entity.Property(e => e.AuthorId).HasColumnType("int(11)");
+            entity.Property(e => e.AuthorId).HasColumnType("int(11)").HasColumnName("AuthorId");
             entity.Property(e => e.Isbn)
                 .HasMaxLength(17)
                 .HasColumnName("ISBN");
 
-            entity.HasOne(d => d.Author).WithMany()
+            entity.HasOne(d => d.Author).WithMany(d => d.AuthorBooks)
                 .HasForeignKey(d => d.AuthorId)
                 .HasConstraintName("author_book_ibfk_1");
 
-            entity.HasOne(d => d.IsbnNavigation).WithMany()
+            entity.HasOne(d => d.IsbnNavigation).WithMany(d => d.AuthorBooks)
                 .HasForeignKey(d => d.Isbn)
                 .HasConstraintName("author_book_ibfk_2");
         });
@@ -99,7 +99,7 @@ public partial class LibraryDbContext : DbContext
             entity.Property(e => e.PublisherId).HasColumnType("int(11)");
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.Year).HasColumnType("year(4)");
-            entity.HasMany<AuthorBook>(d => d.AuthorBooks).WithOne(p => p.IsbnNavigation).HasForeignKey(d => d.Isbn).HasConstraintName("author_book_ibfk_2"); ;
+            entity.HasMany<AuthorBook>(d => d.AuthorBooks).WithOne(p => p.IsbnNavigation).HasForeignKey(d => d.Isbn);
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Books)
                 .HasForeignKey(d => d.PublisherId)

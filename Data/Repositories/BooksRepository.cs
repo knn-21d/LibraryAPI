@@ -1,5 +1,6 @@
 ﻿using LibraryAPI.Data.DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace LibraryAPI.Data.Repositories
 {
@@ -21,20 +22,22 @@ namespace LibraryAPI.Data.Repositories
 
         public async Task<List<Book>> SearchBooks(BooksSearchDto query)
         {
-            return (await _context.Books.Include(b => b.Publisher).Include(b => b.AuthorBooks).ToListAsync()).Where(book =>
+            return (await _context.Books.Include(b => b.Publisher).Include(b => b.AuthorBooks).ThenInclude(b => b.Author).ToListAsync()).Where(book =>
             {
                 bool isMeetsCondition = true;
                 isMeetsCondition = query.Name is not null ? book.Title.ToLower().Contains(query.Name.ToLower()) : true;
-                isMeetsCondition = query.PagesFrom is not null ? book.Pages >= query.PagesFrom : true;
-                isMeetsCondition = query.PagesTo is not null ? book.Pages <= query.PagesTo : true;
-                isMeetsCondition = query.PublisherName is not null ? book.Publisher.Name.ToLower().Contains(query.PublisherName.ToLower()) : true;
-                isMeetsCondition = query.Country is not null ? book.Publisher.Country.ToLower().Contains(query.Country.ToLower()) : true;
-                isMeetsCondition = query.Year is not null ? book.Year == query.Year : true;
-                isMeetsCondition = query.PriceFrom is not null ? book.Price >= query.PriceFrom : true;
-                isMeetsCondition = query.PriceTo is not null ? book.Price <= query.PriceTo : true;
-                isMeetsCondition = query.Author is not null && book.AuthorBooks.Count > 0
+                isMeetsCondition = isMeetsCondition && (query.PagesFrom is not null ? book.Pages >= query.PagesFrom : true);
+                isMeetsCondition = isMeetsCondition && (query.PagesTo is not null ? book.Pages <= query.PagesTo : true);
+                isMeetsCondition = isMeetsCondition && (
+                    query.PublisherName is not null ? book.Publisher.Name.ToLower().Contains(query.PublisherName.ToLower()) : true
+                );
+                isMeetsCondition = isMeetsCondition && (query.Country is not null ? book.Publisher.Country.ToLower().Contains(query.Country.ToLower()) : true);
+                isMeetsCondition = isMeetsCondition && (query.Year is not null ? book.Year == query.Year : true);
+                isMeetsCondition = isMeetsCondition && (query.PriceFrom is not null ? book.Price >= query.PriceFrom : true);
+                isMeetsCondition = isMeetsCondition && (query.PriceTo is not null ? book.Price <= query.PriceTo : true);
+                isMeetsCondition = isMeetsCondition && (query.Author is not null && book.AuthorBooks.Count > 0
                     ? book.AuthorBooks.Any(auuthor => (auuthor.Author?.FirstName.ToLower() + " " + auuthor.Author?.LastName.ToLower() + " " + auuthor.Author?.Patronymic?.ToLower()).Contains(query.Author.ToLower())) 
-                    : true;
+                    : true);
                 return isMeetsCondition;
             }).ToList();
         }
