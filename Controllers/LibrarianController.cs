@@ -1,7 +1,6 @@
 ﻿using LibraryAPI.Data;
 using LibraryAPI.Data.DTOs;
 using LibraryAPI.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Web.Http;
@@ -16,53 +15,72 @@ namespace LibraryAPI.Controllers
         private readonly User? _user = null;
         private readonly OrderService _orderService;
         private readonly StorageManagementService _storageManagementService;
-        private readonly UserManagementService _userManagementService;
 
-        public LibrarianController(OrderService orderService, StorageManagementService storageManagementService, UserManagementService registerService) : base()
+        public LibrarianController(OrderService orderService, StorageManagementService storageManagementService) : base()
         {
             _orderService = orderService;
             _storageManagementService = storageManagementService;
-            _userManagementService = registerService;
         }
 
         [Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpGet("order/{orderId}")]
-        public async Task<ActionResult<Order>> GetOrder(int orderId)
+        public async Task<ActionResult<Data.Order>> GetOrder(int orderId)
         {
             var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             return Ok(await _orderService.GetOrder(orderId, user));
         }
 
         [Microsoft.AspNetCore.Mvc.HttpGet("orders/all")]
         [Microsoft.AspNetCore.Authorization.Authorize()]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
+        public async Task<ActionResult<IEnumerable<Data.Order>>> GetAllOrders()
         {
             var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             return Ok(await _orderService.GetAllOrders(user));
         }
 
         [Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpGet("orders/customer/{customerId}")]
-        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrdersByCustomer(int customerId)
+        public async Task<ActionResult<IEnumerable<Data.Order>>> GetAllOrdersByCustomer(int customerId)
         {
-            
+
             var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             return Ok(await _orderService.GetAllOrdersByCustomer(user, customerId));
         }
 
         // POST api/<CustomersController>
         [Microsoft.AspNetCore.Mvc.HttpPost("new-order/{customerId}/{isbn}")]
         [Microsoft.AspNetCore.Authorization.Authorize()]
-        public async Task<ActionResult<Order>> CreateOrder(int customerId, string isbn)
+        public async Task<ActionResult<Data.Order>> CreateOrder(int customerId, string isbn)
         {
             var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             return Ok(await _orderService.CreateOrder(customerId, isbn));
         }
 
         [Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpPatch("borrow/{orderId}")]
-        public async Task<ActionResult<Order>> ReleaseCopy(int orderId)
+        public async Task<ActionResult<Data.Order>> ReleaseCopy(int orderId)
         {
+            var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             try
             {
                 return Ok(await _orderService.SetBorrowedNow(orderId));
@@ -75,7 +93,7 @@ namespace LibraryAPI.Controllers
 
         [Microsoft.AspNetCore.Authorization.Authorize()]
         [Microsoft.AspNetCore.Mvc.HttpPatch("return/{orderId}")]
-        public async Task<ActionResult<Order>> ReturnCopy(int orderId)
+        public async Task<ActionResult<Data.Order>> ReturnCopy(int orderId)
         {
             try
             {
@@ -91,6 +109,12 @@ namespace LibraryAPI.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost("addBook")]
         public async Task<ActionResult<Book>> AddBook([Microsoft.AspNetCore.Mvc.FromBody] BookDto book)
         {
+            var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
+
             var createdBook = await this._storageManagementService.AddBoock(book);
             return createdBook is not null ? createdBook : StatusCode(400);
         }
@@ -99,6 +123,11 @@ namespace LibraryAPI.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost("addCopies")]
         public async Task<ActionResult<List<Copy>>> AddCopies(AddCopiesDto addCopiesDto)
         {
+            var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
             return (await this._storageManagementService.AddNCopies(addCopiesDto.isbn, addCopiesDto.count)).ToList();
         }
     }
