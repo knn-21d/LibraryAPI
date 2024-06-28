@@ -22,13 +22,11 @@ namespace LibraryAPI.Services
             _authorsRepository = authorsRepository;
         }
 
-        public async Task<Copy?> DeleteCopy(int id)
+        public async Task DeleteCopy(int id)
         {
             Copy copy = await _copiesRepository.GetCopy(id) ?? throw new HttpResponseException(System.Net.HttpStatusCode.NotFound);
 
             await _copiesRepository.DeleteCopy(copy);
-
-            return null;
         }
 
         public async Task<Copy> AddCopy(string isbn)

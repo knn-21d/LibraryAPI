@@ -130,5 +130,17 @@ namespace LibraryAPI.Controllers
             }
             return (await this._storageManagementService.AddNCopies(addCopiesDto.isbn, addCopiesDto.count)).ToList();
         }
+
+        [Microsoft.AspNetCore.Authorization.Authorize()]
+        [Microsoft.AspNetCore.Mvc.HttpDelete("removeCopy/{copyId}")]
+        public async Task RemoveCopy(int copyId)
+        {
+            var user = JsonSerializer.Deserialize<User>(User.Claims.FirstOrDefault(claim => claim?.Type == "user")?.Value!)!;
+            if (!Enumerable.Range(2, 3).Contains(user.RoleId))
+            {
+                throw new HttpResponseException(System.Net.HttpStatusCode.Forbidden);
+            }
+            await this._storageManagementService.DeleteCopy(copyId);
+        }
     }
 }

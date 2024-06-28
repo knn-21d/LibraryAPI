@@ -22,7 +22,7 @@ namespace LibraryAPI.Data.Repositories
 
         public async Task<List<Book>> SearchBooks(BooksSearchDto query)
         {
-            return (await _context.Books.Include(b => b.Publisher).Include(b => b.AuthorBooks).ThenInclude(b => b.Author).ToListAsync()).Where(book =>
+            return (await _context.Books.Include(b => b.Copies).Include(b => b.Publisher).Include(b => b.AuthorBooks).ThenInclude(b => b.Author).ToListAsync()).Where(book =>
             {
                 bool isMeetsCondition = true;
                 isMeetsCondition = query.Name is not null ? book.Title.ToLower().Contains(query.Name.ToLower()) : true;

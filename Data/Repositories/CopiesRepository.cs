@@ -38,12 +38,10 @@ namespace LibraryAPI.Data.Repositories
             return copy;
         }
 
-        public async Task<Copy?> DeleteCopy(Copy copy)
+        public async Task DeleteCopy(Copy copy)
         {
             _context.Copies.Remove(copy);
             await _context.SaveChangesAsync();
-
-            return null;
         }
     }
 }
