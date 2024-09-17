@@ -6,10 +6,10 @@ namespace LibraryAPI.Data.DTOs
     {
         public string Login { get; set; }
         public string Password { get; set; }
-        public string[] CustomerData { get; set; }
+        public CustomerDTO CustomerData { get; set; }
 
         [JsonConstructor]
-        public RegisterDTO(string login, string password, string[] customerData)
+        public RegisterDTO(string login, string password, CustomerDTO customerData)
         {
             Login = login;
             Password = password;

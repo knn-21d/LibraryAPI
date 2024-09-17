@@ -51,25 +51,16 @@ namespace LibraryAPI.Services
             return await _usersRepository.DeleteUser(id);
         }
 
-        public async Task<Customer> RegisterUserCustomer(string login, string password, string[] customerData)
+        public async Task<Customer> RegisterUserCustomer(string login, string password, CustomerDTO customerData)
         {
             // roleId читателя: 1
             User user = await RegisterUser(login, password, 1);
-            return await _customersRepository.AddCustomer(new Customer
-            {
-                FirstName = customerData[0],
-                Patronymic = customerData[1],
-                LastName = customerData[2],
-                Phone = customerData[3],
-                AltPhone = customerData[4],
-                Address = customerData[5],
-                UserId = user.Id
-            });
+            return await _customersRepository.AddCustomer(new Customer { FirstName = customerData.FirstName, LastName = customerData.LastName, Patronymic = customerData.Patronymic, Phone = customerData.Phone, AltPhone = customerData.AltPhone, Address = customerData.Address, UserId = user.Id });
         }
 
         public async Task<string> LoginUser(string login, string password)
         {
-            User? user = await _usersRepository.GetuserByLogin(login);
+            User? user = await _usersRepository.GetUserByLogin(login);
             if (user is null)
             {
                 throw new UnauthorizedAccessException();
@@ -82,7 +73,7 @@ namespace LibraryAPI.Services
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var customer = await this._customersRepository.GetCustomerByUserId(user.Id);
+            var customer = await _customersRepository.GetCustomerByUserId(user.Id);
 
             var claims = new List<Claim>
             {
