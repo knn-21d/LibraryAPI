@@ -16,9 +16,13 @@
 
         public int[]? AuthorId { get; set; } = null;
 
+        public int[]? CategoryId { get; set; } = null;
+
         public virtual PublisherDto? Publisher { get; set; } = null!;
 
         public virtual AuthorDto[]? Author { get; set; } = null;
+
+        public virtual string[]? CategoryNames { get; set; } = null;
     }
 
 }

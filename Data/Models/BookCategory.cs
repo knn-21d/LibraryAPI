@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryAPI.Data;
 
+[Table("book_category")]
 public partial class BookCategory
 {
     public string Isbn { get; set; } = null!;

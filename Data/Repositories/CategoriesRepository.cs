@@ -27,5 +27,13 @@ namespace LibraryAPI.Data.Repositories
             await _context.SaveChangesAsync();
             return category;
         }
+
+        public async Task<BookCategory> AddBookCategory(int categoryId, string bookId)
+        {
+            var bookCategory = new BookCategory { Isbn = bookId, CategoryId = categoryId };
+            await _context.BookCategories.AddAsync(bookCategory);
+            await _context.SaveChangesAsync();
+            return bookCategory;
+        }
     }
 }

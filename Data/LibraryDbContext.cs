@@ -100,6 +100,7 @@ public partial class LibraryDbContext : DbContext
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.Year).HasColumnType("year(4)");
             entity.HasMany<AuthorBook>(d => d.AuthorBooks).WithOne(p => p.IsbnNavigation).HasForeignKey(d => d.Isbn);
+            entity.HasMany<BookCategory>(d => d.BookCategory).WithOne(p => p.IsbnNavigation).HasForeignKey(d => d.Isbn);
 
             entity.HasOne(d => d.Publisher).WithMany(p => p.Books)
                 .HasForeignKey(d => d.PublisherId)
@@ -108,9 +109,10 @@ public partial class LibraryDbContext : DbContext
 
         modelBuilder.Entity<BookCategory>(entity =>
         {
+            entity.ToTable("book_category");
+
             entity
-                .HasNoKey()
-                .ToTable("book_category");
+                .HasKey(it => new { it.CategoryId, it.Isbn });
 
             entity.HasIndex(e => e.CategoryId, "CategoryId");
 
@@ -121,11 +123,11 @@ public partial class LibraryDbContext : DbContext
                 .HasMaxLength(17)
                 .HasColumnName("ISBN");
 
-            entity.HasOne(d => d.Category).WithMany()
+            entity.HasOne(d => d.Category).WithMany(d => d.BookCategory)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("book_category_ibfk_2");
 
-            entity.HasOne(d => d.IsbnNavigation).WithMany()
+            entity.HasOne(d => d.IsbnNavigation).WithMany(d => d.BookCategory)
                 .HasForeignKey(d => d.Isbn)
                 .HasConstraintName("book_category_ibfk_1");
         });
@@ -137,7 +139,9 @@ public partial class LibraryDbContext : DbContext
             entity.ToTable("categories");
 
             entity.Property(e => e.Id).HasColumnType("int(11)");
-            entity.Property(e => e.Name).HasColumnType("int(11)");
+            entity.Property(e => e.Name).HasColumnType("varchar(255)");
+
+            entity.HasMany<BookCategory>(d => d.BookCategory).WithOne(p => p.Category).HasForeignKey(d => d.CategoryId);
         });
 
         modelBuilder.Entity<Copy>(entity =>

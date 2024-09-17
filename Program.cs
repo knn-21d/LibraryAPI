@@ -74,17 +74,18 @@ namespace LibraryAPI
                 });
             });
             builder.Services.AddDbContext<LibraryDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection")!), ServiceLifetime.Singleton);
-            builder.Services.AddSingleton<CopiesRepository>();
-            builder.Services.AddSingleton<BooksRepository>();
-            builder.Services.AddSingleton<CustomersRepository>();
-            builder.Services.AddSingleton<OrdersRepository>();
-            builder.Services.AddSingleton<UsersRepository>();
-            builder.Services.AddSingleton<UserManagementService>();
-            builder.Services.AddSingleton<StorageManagementService>();
-            builder.Services.AddSingleton<OrderService>();
-            builder.Services.AddSingleton<PublishersRepository>();
-            builder.Services.AddSingleton<BooksService>();
-            builder.Services.AddSingleton<AuthorsRepository>();
+            builder.Services.AddScoped<CopiesRepository>();
+            builder.Services.AddScoped<BooksRepository>();
+            builder.Services.AddScoped<CustomersRepository>();
+            builder.Services.AddScoped<OrdersRepository>();
+            builder.Services.AddScoped<UsersRepository>();
+            builder.Services.AddScoped<UserManagementService>();
+            builder.Services.AddScoped<StorageManagementService>();
+            builder.Services.AddScoped<OrderService>();
+            builder.Services.AddScoped<PublishersRepository>();
+            builder.Services.AddScoped<BooksService>();
+            builder.Services.AddScoped<AuthorsRepository>();
+            builder.Services.AddScoped<CategoriesRepository>();
 
             var app = builder.Build();
 

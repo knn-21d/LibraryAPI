@@ -13,13 +13,15 @@ namespace LibraryAPI.Services
         private readonly BooksRepository _booksRepository;
         private readonly PublishersRepository _publisherRepository;
         private readonly AuthorsRepository _authorsRepository;
+        private readonly CategoriesRepository _categoriesRepository;
 
-        public StorageManagementService(CopiesRepository copiesRepository, BooksRepository booksRepository, PublishersRepository publishersRepository, AuthorsRepository authorsRepository)
+        public StorageManagementService(CopiesRepository copiesRepository, BooksRepository booksRepository, PublishersRepository publishersRepository, AuthorsRepository authorsRepository, CategoriesRepository categoriesRepository)
         {
             _copiesRepository = copiesRepository;
             _booksRepository = booksRepository;
             _publisherRepository = publishersRepository;
             _authorsRepository = authorsRepository;
+            _categoriesRepository = categoriesRepository;
         }
 
         public async Task DeleteCopy(int id)
@@ -55,15 +57,22 @@ namespace LibraryAPI.Services
                 Country = book.Publisher.Country,
                 Name = book.Publisher.Name,
                 Phone = book.Publisher.Phone,
-            }) : null;
+            }) : await this._publisherRepository.GetPublisher((int)book.PublisherId);
             var publisherId = publisher is not null ? publisher.Id : book.PublisherId;
             var authors = book.Author?.Length > 0
                 ? book.Author.Select(
                     async (b) => await _authorsRepository.AddAuthor(new Author { FirstName = b.FirstName, LastName = b.LastName, Patronymic = b.Patronymic })
-                ) .Select(it => it.Result)
+                ).Select(it => it.Result)
                 : null;
             var authorsIds = (book.AuthorId is not null ? book.AuthorId.ToList()! : new List<int> { })
                 .Concat(authors is not null ? authors.Select(a => a.Id).ToList() : new List<int> { });
+            var categories = book.CategoryNames?.Length > 0 ? book.CategoryNames.Select(
+                async (it) => await _categoriesRepository.AddCategory(new Category { Name = it })
+            ).Select(it => it.Result) : null;
+            var categoriesIds = (book.CategoryId is not null
+                ? book.CategoryId.ToList()!
+                : new List<int> { })
+            .Concat(categories is not null ? categories.Select(a => a.Id).ToList() : new List<int> { });
 
             var newBook = await _booksRepository.AddBook(new Book {
                 Isbn = book.Isbn,
@@ -78,6 +87,10 @@ namespace LibraryAPI.Services
 
             var authorBooks = authorsIds
                 .Select(async (id) => await _authorsRepository.AddAuthorBook(new AuthorBook { AuthorId = id, Isbn = newBook.Isbn }))
+                .Select(it => it.Result).ToList();
+
+            var bookCategories = categoriesIds
+                .Select(async (id) => await _categoriesRepository.AddBookCategory(id, book.Isbn))
                 .Select(it => it.Result).ToList();
 
             return newBook;
